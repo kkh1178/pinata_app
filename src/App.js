@@ -1,25 +1,28 @@
-import logo from './logo.svg';
-import './App.css';
+import React, { useEffect, useState } from "react";
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
-}
+// import axios from "axios";
+
+const App = () => {
+    const [data, setData] = useState(null);
+
+    useEffect(() => {
+        const url = `https://api.pinata.cloud/data/testAuthentication`;
+        const pinata_api_key = process.env.REACT_APP_PINATA_API_KEY;
+        const pinata_secret_api_key =
+            process.env.REACT_APP_PINATA_SECRET_API_KEY;
+
+        fetch(`${url}`, {
+            headers: {
+                pinata_api_key: pinata_api_key,
+                pinata_secret_api_key: pinata_secret_api_key,
+            },
+        })
+            .then((res) => res.json())
+            .then((json) => setData(json))
+            .catch((err) => console.log(err));
+    }, []);
+
+    return <div>{JSON.stringify(data)}</div>;
+};
 
 export default App;
