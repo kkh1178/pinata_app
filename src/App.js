@@ -1,28 +1,18 @@
 import React, { useEffect, useState } from "react";
+import Lookup from "./Lookup";
+import { Container } from "semantic-ui-react";
+import "semantic-ui-css/semantic.min.css";
+import Pin from "./pin";
 
 // import axios from "axios";
 
 const App = () => {
-    const [data, setData] = useState(null);
-
-    useEffect(() => {
-        const url = `https://api.pinata.cloud/data/testAuthentication`;
-        const pinata_api_key = process.env.REACT_APP_PINATA_API_KEY;
-        const pinata_secret_api_key =
-            process.env.REACT_APP_PINATA_SECRET_API_KEY;
-
-        fetch(`${url}`, {
-            headers: {
-                pinata_api_key: pinata_api_key,
-                pinata_secret_api_key: pinata_secret_api_key,
-            },
-        })
-            .then((res) => res.json())
-            .then((json) => setData(json))
-            .catch((err) => console.log(err));
-    }, []);
-
-    return <div>{JSON.stringify(data)}</div>;
+    const url = `https://gateway.pinata.cloud/ipfs`;
+    return (
+        <Container>
+            <Lookup></Lookup>
+            <Pin></Pin>
+        </Container>
+    );
 };
-
 export default App;
