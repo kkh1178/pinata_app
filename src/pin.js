@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import FormData from "form-data";
+import axios from "axios";
 import { Button, Form, Input, Label } from "semantic-ui-react";
 
 // import { Button, Form, Input, Label } from "semantic-ui-react";
@@ -15,31 +16,60 @@ const Pin = () => {
     //
     const onFileChange = (event) => {
         // event.preventDefault();
-        console.log(event);
-        setFile(event.target.value);
+
+        setFile(event.target.files[0]);
     };
 
-    const onFileUpload = () => {
-        const data = new FormData();
+    const onFileUpload = async () => {
+        let data = new FormData();
         const url = `https://api.pinata.cloud/pinning/pinFileToIPFS`;
-        data.append("file", file, file.name);
+        data.append("file", file, { filepath: file.name });
 
+        // // Pinata optional metadata
+        // const metadata = JSON.stringify({
+        //     name: file.name,
+        // });
+
+        // data.append("pinataMetadata", metadata);
+
+        // Axios request options for the post
+        // const requestOptions = {
+        //     //this is needed to prevent axios from erroring out with large files
+        //     maxBodyLength: "Infinity",
+        //     headers: {
+        //         "Content-Type": `multipart/form-data; boundary=${data._boundary}`,
+        //         pinata_api_key: pinata_api_key,
+        //         pinata_secret_api_key: pinata_secret_api_key,
+        //     },
+        // };
         const metadata = JSON.stringify({
             name: file.name,
         });
+        data.append("pinataMetadata", metadata);
 
-        console.log(file);
+        //pinataOptions are optional
+        const pinataOptions = JSON.stringify({
+            cidVersion: 1,
+        });
+        data.append("pinataOptions", pinataOptions);
 
-        const requestOptions = {
-            method: "POST",
-            headers: {
-                "Content-Type": `multipart/form-data; boundary=${data._boundary}`,
-                pinata_api_key: pinata_api_key,
-                pinata_secret_api_key: pinata_secret_api_key,
-            },
-        };
-
-        fetch(url, requestOptions, file);
+        await axios
+            .post(url, data, {
+                //this is needed to prevent axios from erroring out with large files
+                maxContentLength: -1,
+                headers: {
+                    "Content-Type": `multipart/form-data; boundary=${data._boundary}`,
+                    pinata_api_key: pinata_api_key,
+                    pinata_secret_api_key: pinata_secret_api_key,
+                    path: file.name,
+                },
+            })
+            .then(function (response) {
+                console.log(response);
+            })
+            .catch(function (error) {
+                console.log(error);
+            });
     };
 
     return (
@@ -47,7 +77,7 @@ const Pin = () => {
             <Form.Field>
                 <label>Upload Content:</label>
                 <Input type="file" onChange={onFileChange}></Input>
-                <Button></Button>
+                <Button onClick={onFileUpload}>Upload</Button>
             </Form.Field>
         </Form>
     );
